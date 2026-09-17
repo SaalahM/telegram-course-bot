@@ -34,7 +34,7 @@ BOT_TOKEN = os.getenv["BOT_TOKEN"]
 DB_PATH = os.getenv("DB_PATH", "course_registrations.db")
 
 # List of authorized admin Telegram IDs
-ADMIN_IDS = [1075393475,6725538589]  # Add additional numeric Telegram IDs separated by commas
+ADMIN_IDS = [1075393475, 6725538589]  # Add additional numeric Telegram IDs separated by commas
 
 # Registration states
 NAME, DEPARTMENT, CLASS_YEAR, PHONE = range(4)
