@@ -28,7 +28,7 @@ from telegram.ext import (
 # CONFIGURATION
 # ==========================================
 # Reads token from environment variables, falls back to hardcoded string locally
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8626983590:AAF-gWsg-QsYPAERGuMFzKlTTQEFuXiJtK0")
+BOT_TOKEN = os.getenv["BOT_TOKEN"]
 
 # Database path (Uses persistent directory on cloud host, or local file for development)
 DB_PATH = os.getenv("DB_PATH", "course_registrations.db")
