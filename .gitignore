@@ -1,0 +1,4 @@
+course_registrations.db
+attendance_matrix.xlsx
+__pycache__/
+*.pyc
