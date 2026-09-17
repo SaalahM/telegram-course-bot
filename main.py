@@ -1,7 +1,7 @@
 import os
 import threading
+from html import escape
 from http.server import HTTPServer, SimpleHTTPRequestHandler
-
 # --- KEEP-ALIVE WEB SERVER FOR RENDER ---
 def run_dummy_server():
     port = int(os.getenv("PORT", 8080))
