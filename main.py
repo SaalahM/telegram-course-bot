@@ -154,23 +154,26 @@ async def start_reg(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if is_already_registered(user_id):
         await update.message.reply_text(
-            "⚠️ *You are already registered!*\n\n"
-            "If you made a mistake, you can use /restart to re-register (allowed once before taking attendance).",
-            parse_mode="Markdown",
+            "⚠️ <b>You are already registered!</b>\n\n"
+            "If you made a mistake, you can use /restart to re-register "
+            "(allowed once before taking attendance).",
+            parse_mode="HTML",
         )
         return ConversationHandler.END
 
     await update.message.reply_text(
-        "<blockquote> *👋 الســـــــــــلام عليكم ورحمة اللــــــه وبركــــــــــــــــــــــــــاته 👋*</blockquote>\n\n"
-        "📝 *Welcome to Course Registration!*\n\n"
-        "👉 *Question 1 of 3:* Please enter your *Full Name*:",
-        parse_mode="Markdown",
+        "<blockquote>👋 الســـــــــــلام عليكم ورحمة اللــــــه "
+        "وبركــــــــــــــــــــــــــاته 👋</blockquote>\n\n"
+        "📝 <b>Welcome to Course Registration!</b>\n\n"
+        "👉 <b>Question 1 of 3:</b> Please enter your <b>Full Name</b>:",
+        parse_mode="HTML",
     )
     return NAME
 
 
 async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data["full_name"] = update.message.text
+    full_name = update.message.text.strip()
+    context.user_data["full_name"] = full_name
 
     keyboard = [
         [
@@ -198,13 +201,13 @@ async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
             InlineKeyboardButton("⚙️ Other", callback_data="Other"),
         ],
     ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
 
     await update.message.reply_text(
-        f"Thanks *{update.message.text}*!\n\n"
-        "👉 *Question 2 of 3:* Please select your *Department* below:",
-        reply_markup=reply_markup,
-        parse_mode="Markdown",
+        f"Thanks <b>{escape(full_name)}</b>!\n\n"
+        "👉 <b>Question 2 of 3:</b> Please select your "
+        "<b>Department</b> below:",
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode="HTML",
     )
     return DEPARTMENT
 
@@ -212,7 +215,9 @@ async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def get_department(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    context.user_data["department"] = query.data
+
+    department = query.data
+    context.user_data["department"] = department
 
     keyboard = [
         [
@@ -225,13 +230,15 @@ async def get_department(update: Update, context: ContextTypes.DEFAULT_TYPE):
             InlineKeyboardButton("🎓 5th Year+", callback_data="5th Year+"),
         ],
     ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
 
     await query.edit_message_text(
-        text=f"🏢 Department set to: *{query.data}*\n\n"
-        "👉 *Question 3 of 3:* Select your current *Class / Year*:",
-        reply_markup=reply_markup,
-        parse_mode="Markdown",
+        text=(
+            f"🏢 Department set to: <b>{escape(department)}</b>\n\n"
+            "👉 <b>Question 3 of 3:</b> Select your current "
+            "<b>Class / Year</b>:"
+        ),
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode="HTML",
     )
     return CLASS_YEAR
 
@@ -239,19 +246,24 @@ async def get_department(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def get_class_year(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    context.user_data["class_year"] = query.data
+
+    class_year = query.data
+    context.user_data["class_year"] = class_year
 
     await query.edit_message_text(
-        text=f"🎓 Class set to: *{query.data}*\n\n"
-        "👉 *Final Step:* Please type and send your *📞Phone Number*:",
-        parse_mode="Markdown",
+        text=(
+            f"🎓 Class set to: <b>{escape(class_year)}</b>\n\n"
+            "👉 <b>Final Step:</b> Please type and send your "
+            "<b>📞 Phone Number</b>:"
+        ),
+        parse_mode="HTML",
     )
     return PHONE
 
 
 async def get_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
-    phone = update.message.text
+    phone = update.message.text.strip()
     full_name = context.user_data.get("full_name", "")
     department = context.user_data.get("department", "")
     class_year = context.user_data.get("class_year", "")
@@ -260,38 +272,43 @@ async def get_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cursor = conn.cursor()
 
     cursor.execute(
-        "SELECT restart_count FROM participants WHERE user_id = ?", (user_id,)
+        "SELECT restart_count FROM participants WHERE user_id = ?",
+        (user_id,),
     )
     row = cursor.fetchone()
     current_restarts = row[0] if row else 0
 
     cursor.execute(
         """
-        INSERT OR REPLACE INTO participants (user_id, full_name, department, class_year, phone, restart_count)
+        INSERT OR REPLACE INTO participants
+        (user_id, full_name, department, class_year, phone, restart_count)
         VALUES (?, ?, ?, ?, ?, ?)
-    """,
+        """,
         (user_id, full_name, department, class_year, phone, current_restarts),
     )
     conn.commit()
     conn.close()
 
     summary = (
-        "✨ *REGISTRATION SUCCESSFUL!* ✨\n\n"
-        f"👤 *Name:* {full_name}\n"
-        f"🏢 *Department:* {department}\n"
-        f"🎓 *Class:* {class_year}\n"
-        f"📞 *Phone:* {phone}\n\n"
+        "✨ <b>REGISTRATION SUCCESSFUL!</b> ✨\n\n"
+        f"👤 <b>Name:</b> {escape(full_name)}\n"
+        f"🏢 <b>Department:</b> {escape(department)}\n"
+        f"🎓 <b>Class:</b> {escape(class_year)}\n"
+        f"📞 <b>Phone:</b> {escape(phone)}\n\n"
         "You can now mark attendance using /attend during active sessions.\n"
-        "💡 *Want to know about the course?* Send /overview to get more information."
+        "💡 <b>Want to know about the course?</b> "
+        "Send /overview to get more information."
     )
-    await update.message.reply_text(summary, parse_mode="Markdown")
+
+    await update.message.reply_text(summary, parse_mode="HTML")
     return ConversationHandler.END
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "❌ *Registration Canceled.*\n\nSend /register whenever you are ready to try again.",
-        parse_mode="Markdown",
+        "❌ <b>Registration Canceled.</b>\n\n"
+        "Send /register whenever you are ready to try again.",
+        parse_mode="HTML",
     )
     return ConversationHandler.END
 
