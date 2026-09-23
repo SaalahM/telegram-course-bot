@@ -140,7 +140,7 @@ async def course_overview(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "⚡ /attend — Mark session attendance\n"
         "⚡ /mystatus — Check your attendance record\n"
         "⚡ /cancel — Cancel active registration setup\n\n\n"
-        "<blockquote>🔰 PREPARED BY <b>2016BATCH OF PHARMACY MUSLIM STUDENTS</b>\n and Hosted by:CHMS-MSJ</blockquote>\n\n"
+        "<blockquote>🔰 PREPARED BY <b>2016BATCH OF PHARMACY MUSLIM STUDENTS</b>\n Hosted by:CHMS-MSJ</blockquote>\n\n"
         "                                             FI AMANILLAH 🍃"
     )
     await update.message.reply_text(overview_text, parse_mode="HTML")
