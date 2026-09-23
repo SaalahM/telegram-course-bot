@@ -122,10 +122,10 @@ async def course_overview(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "🗣️ <b>Lectures:</b> Delivered by multiple experienced instructors with interactive Q&A sessions.\n\n"
         
         "🗂️ <b><u>MAJOR TOPICS COVERED</u></b>\n"
-        "This program is designed to address the concept of FAMILY RAISING AND SOCIETY BUILDING under topics of:\n"
+        "This program is designed to address the concept of FAMILY RAISING AND SOCIETY BUILDING under the topics of:\n"
         "1️⃣ <b>The basics for Society Building</b>\n"
         "2️⃣ <b>Islamic concept of success</b>\n"
-        "3️⃣ <b>Islamic World History</b>\n"
+        "3️⃣ <b>Islamic World History  and</b>\n"
         "4️⃣ <b>The Model parents</b>\n\n\n"
 
         "📌 <b><u>Key Rules & Guidance</u></b>\n"
@@ -140,8 +140,8 @@ async def course_overview(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "⚡ /attend — Mark session attendance\n"
         "⚡ /mystatus — Check your attendance record\n"
         "⚡ /cancel — Cancel active registration setup\n\n\n"
-        "<blockquote>🔰 PREPARED BY <b>2016BATCH OF PHARMACY MUSLIM STUDENTS</b></blockquote>\n\n"
-        "                                      FI AMANILLAH 🍃"
+        "<blockquote>🔰 PREPARED BY <b>2016BATCH OF PHARMACY MUSLIM STUDENTS</b>\n and Hosted by:CHMS-MSJ</blockquote>\n\n"
+        "                                             FI AMANILLAH 🍃"
     )
     await update.message.reply_text(overview_text, parse_mode="HTML")
 
@@ -501,52 +501,59 @@ async def my_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cursor = conn.cursor()
 
     cursor.execute(
-        "SELECT full_name, department, class_year, phone, restart_count FROM participants WHERE user_id = ?",
+        """
+        SELECT full_name, department, class_year, phone, restart_count
+        FROM participants
+        WHERE user_id = ?
+        """,
         (user_id,),
     )
     user = cursor.fetchone()
 
     if not user or user[0] is None:
-        await update.message.reply_text(
-            "⚠️ *Not Registered!*\n\nYou are not registered yet. Use /register to get started.",
-            parse_mode="Markdown",
-        )
         conn.close()
+        await update.message.reply_text(
+            "⚠️ <b>Not Registered!</b>\n\n"
+            "You are not registered yet. Use /register to get started.",
+            parse_mode="HTML",
+        )
         return
 
     full_name, department, class_year, phone, restart_count = user
 
     cursor.execute(
-        "SELECT session_code FROM attendance WHERE user_id = ?", (user_id,)
+        "SELECT session_code FROM attendance WHERE user_id = ?",
+        (user_id,),
     )
     attended_rows = cursor.fetchall()
     conn.close()
 
-    attended_sessions = [row[0].upper() for row in attended_rows]
+    attended_sessions = [str(row[0]).upper() for row in attended_rows]
     total_attended = len(attended_sessions)
-    sessions_str = (
-        ", ".join(attended_sessions) if attended_sessions else "None"
-    )
+    sessions_str = ", ".join(attended_sessions) if attended_sessions else "None"
 
     if total_attended > 0:
-        restart_note = "🔒 *Registration Locked:* Attendance active."
+        restart_note = "🔒 <b>Registration Locked:</b> Attendance active."
     elif restart_count >= 1:
-        restart_note = "🔒 *Registration Locked:* Reset limit (1/1) reached."
+        restart_note = "🔒 <b>Registration Locked:</b> Reset limit reached."
     else:
-        restart_note = "💡 *Need to edit info?* Send /restart (allowed once before 1st attendance)."
+        restart_note = (
+            "💡 <b>Need to edit info?</b> "
+            "Send /restart before your first attendance."
+        )
 
     msg = (
-        "📋 *YOUR PARTICIPANT PROFILE*\n\n"
-        f"👤 *Name:* {full_name}\n"
-        f"🏢 *Department:* {department}\n"
-        f"🎓 *Class:* {class_year}\n"
-        f"📞 *Phone:* {phone}\n\n"
-        f"📊 *Total Attended:* {total_attended}/12 sessions\n"
-        f"✅ *Sessions List:* {sessions_str}\n\n"
+        "📋 <b>YOUR PARTICIPANT PROFILE</b>\n\n"
+        f"👤 <b>Name:</b> {escape(str(full_name))}\n"
+        f"🏢 <b>Department:</b> {escape(str(department))}\n"
+        f"🎓 <b>Class:</b> {escape(str(class_year))}\n"
+        f"📞 <b>Phone:</b> {escape(str(phone))}\n\n"
+        f"📊 <b>Total Attended:</b> {total_attended}/12 sessions\n"
+        f"✅ <b>Sessions List:</b> {escape(sessions_str)}\n\n"
         f"{restart_note}"
     )
 
-    await update.message.reply_text(msg, parse_mode="Markdown")
+    await update.message.reply_text(msg, parse_mode="HTML")
 
 
 # ==========================================
