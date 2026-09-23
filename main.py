@@ -162,7 +162,7 @@ async def start_reg(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return ConversationHandler.END
 
     await update.message.reply_text(
-        "<blockquote> <b> الســـــــــــلام عليكم ورحمة اللــــــه وبركــــــــــــــــــــــــــاته 👋</b></blockquote>\n\n"
+        "<blockquote> <b> 👋الســـــــــــلام عليكم ورحمة اللــــــه وبركــــــــــــــــــــــــــاته </b></blockquote>\n\n"
         "📝 <b>Welcome to Course Registration!</b>\n\n"
         "👉 <b>Question 1 of 3:</b> Please enter your <b>Full Name</b>:",
         parse_mode="HTML",
